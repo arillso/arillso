@@ -94,7 +94,7 @@ Required for all repos:
 ```json
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": ["github>arillso/arillso:renovate-base"]
+    "extends": ["github>arillso/.github:renovate-base"]
 }
 ```
 
@@ -117,7 +117,7 @@ Required for all repos:
 
 ```json
 {
-    "extends": ["github>arillso/arillso:renovate-base"]
+    "extends": ["github>arillso/.github:renovate-base"]
 }
 ```
 
@@ -125,7 +125,7 @@ Required for all repos:
 
 ```json
 {
-    "extends": ["github>arillso/arillso:renovate-go"]
+    "extends": ["github>arillso/.github:renovate-go"]
 }
 ```
 
@@ -133,7 +133,7 @@ Required for all repos:
 
 ```json
 {
-    "extends": ["github>arillso/arillso:renovate-actions"]
+    "extends": ["github>arillso/.github:renovate-actions"]
 }
 ```
 
@@ -141,7 +141,7 @@ Required for all repos:
 
 ```json
 {
-    "extends": ["github>arillso/arillso:renovate-ansible"]
+    "extends": ["github>arillso/.github:renovate-ansible"]
 }
 ```
 
