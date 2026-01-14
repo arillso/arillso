@@ -17,6 +17,11 @@
             "description": "Group Python dependencies (ansible-core)",
             "matchManagers": ["pip_requirements", "pip_setup"],
             "groupName": "python-dependencies"
+        },
+        {
+            "description": "Update Ansible collections even with range constraints",
+            "matchManagers": ["ansible-galaxy"],
+            "rangeStrategy": "update-lockfile"
         }
     ],
     "ansible-galaxy": {
