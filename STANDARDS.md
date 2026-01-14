@@ -50,8 +50,8 @@ MIT License
 
 **Avoid:**
 
-- Badges (except for packages)
-- Long feature lists
+- Badges (except for packages and Ansible collections)
+- Long feature lists (except for Ansible collections listing roles/modules/plugins)
 - Code examples (belong in AGENTS.md)
 
 ### 2. LICENSE
@@ -162,9 +162,11 @@ See [templates/](./templates/) for copy-paste examples.
 |----------|----------|-------------|
 | Continuous Integration | `ci.yml` | Linting |
 | Tests | `test.yml` | Project-specific tests |
-| Deploy | `deploy.yml` | Build, publish, create GitHub Release |
+| Deploy | `deploy.yml` or `publish.yml` | Build, publish, create GitHub Release |
 | Security | `security.yml` | Trivy, secret scanning |
 | CodeQL | `codeql.yml` | CodeQL scanning (required for public repos) |
+
+**Note:** Both `deploy.yml` and `publish.yml` are acceptable for deployment workflows. Use `publish.yml` when the primary focus is publishing packages (Ansible Collections, npm packages, Python packages, etc.).
 
 ### Deploy Workflow
 
@@ -184,6 +186,28 @@ git push origin v1.0.0
 | Go Binary | Build binary → attach to GitHub Release |
 
 See [templates/workflows/](./templates/workflows/) for examples
+
+### GitHub Actions Security
+
+**All GitHub Actions must be pinned to SHA digest for security.**
+
+Required format:
+
+```yaml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+```
+
+**Why:**
+- Prevents supply chain attacks
+- Ensures immutable action versions
+- Renovate automatically manages digest updates via `pinDigests: true`
+
+**Never use:**
+
+```yaml
+- uses: actions/checkout@v4  # ❌ Not pinned
+- uses: actions/checkout@main  # ❌ Mutable reference
+```
 
 ### Schedule Frequency
 
@@ -206,6 +230,121 @@ Common schedules:
 | GitHub Actions | `ci.yml`, `test.yml`, `deploy.yml`, `codeql.yml`, `security.yml` |
 | Docker Images | `ci.yml`, `deploy.yml`, `security.yml` |
 | Ansible Roles | `ci.yml`, `test.yml` |
+
+---
+
+## Ansible-Specific Standards
+
+### Argument Specs
+
+**Required for all Ansible roles.**
+
+Every role must define an argument spec in `meta/argument_specs.yml` to document and validate role variables.
+
+**Benefits:**
+- Auto-validates role input parameters
+- Provides documentation for role variables
+- Enables IDE autocomplete and type checking
+- Replaces need for extensive README variable documentation
+
+**Minimal structure:**
+
+```yaml
+---
+argument_specs:
+  main:
+    short_description: "Brief description of what the role does"
+    description:
+      - "Detailed description of the role's purpose and functionality"
+    author:
+      - "Author Name"
+    options:
+      variable_name:
+        description: "What this variable does"
+        type: "str"  # str, int, bool, list, dict, path, etc.
+        required: false
+        default: "default_value"
+```
+
+**Example:**
+
+```yaml
+---
+argument_specs:
+  main:
+    short_description: "Configure system timezone"
+    description:
+      - "Manages system timezone configuration across different Linux distributions"
+    author:
+      - "Arillso"
+    options:
+      timezone_name:
+        description: "Timezone name (e.g., 'Europe/Zurich', 'America/New_York')"
+        type: "str"
+        required: true
+      timezone_hardware_clock:
+        description: "Set hardware clock to UTC or local time"
+        type: "str"
+        required: false
+        default: "UTC"
+        choices:
+          - "UTC"
+          - "local"
+```
+
+**Validation:**
+
+Argument specs are automatically validated by `ansible-lint` and during role execution.
+
+### Role README Structure
+
+**Required for all Ansible roles.**
+
+Each role must have a `README.md` file following this minimal structure:
+
+```markdown
+# Ansible Role: role_name
+
+Brief description (1-2 sentences) of what the role does.
+
+## Features
+
+- **Feature 1**: Brief description
+- **Feature 2**: Brief description
+- **Feature 3**: Brief description
+
+## Documentation
+
+For detailed documentation including all variables, examples, and usage instructions, see:
+
+**[https://guide.arillso.io/collections/arillso/collection_name/role_name_role.html](https://guide.arillso.io/collections/arillso/collection_name/role_name_role.html)**
+
+## Quick Start
+
+```yaml
+- hosts: servers
+  roles:
+    - role: arillso.collection_name.role_name
+      vars:
+        role_key_variable: value
+```
+
+## License
+
+MIT
+
+## Author Information
+
+This role was created by [arillso](https://github.com/arillso).
+```
+
+**Guidelines:**
+- Keep it minimal - comprehensive documentation lives on guide.arillso.io
+- **Features section**: 3-5 bullet points highlighting key capabilities
+- Only provide a quick start example
+- Link to the guide page for complete documentation and all variables
+- Guide URL pattern: `https://guide.arillso.io/collections/arillso/{collection}/{role}_role.html`
+- No variable documentation in README - users should refer to the guide or `argument_specs.yml`
 
 ---
 
@@ -269,9 +408,14 @@ repository/
 
 ## CHANGELOG.md
 
-Required for all repos with releases. Used by `release.yml` to generate release notes.
+Required for all repos with releases. Used by deployment workflows (`deploy.yml` or `publish.yml`) to generate GitHub Release notes.
 
 Format: [Keep a Changelog](https://keepachangelog.com/)
+
+**Usage in Releases:**
+- Release workflows should extract the relevant version section from CHANGELOG.md
+- Include it in the GitHub Release notes automatically
+- This ensures consistency between CHANGELOG.md and release documentation
 
 ```markdown
 # Changelog

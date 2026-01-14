@@ -18,11 +18,6 @@
             "description": "Group Go dependencies",
             "matchManagers": ["gomod"],
             "groupName": "golang-dependencies"
-        },
-        {
-            "description": "Pin GitHub Actions to SHA",
-            "matchManagers": ["github-actions"],
-            "pinDigests": true
         }
     ]
 }
